@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bing每日图片</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a; 
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; width: 100%; }
+        .image-container { 
+            margin: 20px 0; 
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .bing-image {
+            width: 100%;
+            height: auto;
+            min-height: 400px;
+            background: linear-gradient(45deg, #2c3e50, #4ca1af);
+            transition: opacity 0.3s ease;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .loading { opacity: 0.6; filter: blur(5px); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Bing每日图片</h1>
+        
+        <div class="image-container">
+            <img id="bingImage" class="bing-image" alt="Bing每日图片">
+        </div>
+        
+        <div id="imageInfo" class="info-card">
+            <h3 id="imageTitle">加载中...</h3>
+            <p id="imageCopyright"></p>
+        </div>
+        
+        <div style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
+            <p>💡 图片由Bing每日更新 | 💾 零存储消耗 | ⚡ 极低资源占用</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadBingImage() {
+            const img = document.getElementById('bingImage');
+            const titleEl = document.getElementById('imageTitle');
+            const copyrightEl = document.getElementById('imageCopyright');
+            
+            try {
+                img.classList.add('loading');
+                
+                // 调用极简API获取图片信息
+                const response = await fetch('/api/bing');
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+                
+                // 直接使用Bing的图片链接（零存储占用）
+                img.src = data.url;
+                img.alt = data.title;
+                
+                titleEl.textContent = data.title;
+                copyrightEl.textContent = data.copyright;
+                
+                img.onload = () => img.classList.remove('loading');
+                
+            } catch (error) {
+                console.error('加载失败:', error);
+                titleEl.textContent = '加载失败，请刷新重试';
+            }
+        }
+        
+        // 页面加载时获取图片
+        document.addEventListener('DOMContentLoaded', loadBingImage);
+        
+        // 可选：每天自动刷新（缓存24小时）
+        setInterval(() => {
+            if (confirm('发现新图片，是否刷新？')) {
+                loadBingImage();
+            }
+        }, 24 * 60 * 60 * 1000);
+    </script>
+</body>
+</html>

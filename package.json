@@ -1,0 +1,10 @@
+{
+  "name": "bing-daily-light",
+  "version": "1.0.0",
+  "description": "超轻量Bing每日图片展示",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
